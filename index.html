@@ -365,11 +365,23 @@ ${text.substring(0, 16000)}`;
       })
     });
     const data = await res.json();
-    const raw = (data.content?.[0]?.text || '[]').replace(/```json|```/g,'').trim();
-    const parsed = JSON.parse(raw);
+
+    if (data.error) {
+      showStatus('API error: ' + data.error.message, 'error'); return;
+    }
+
+    const rawText = (data.content?.[0]?.text || '').replace(/```json|```/g,'').trim();
+    if (!rawText) { showStatus('AI returned empty response. Try again.', 'error'); return; }
+
+    const jsonMatch = rawText.match(/\[[\s\S]*\]/);
+    if (!jsonMatch) { showStatus('Could not find transactions in response: ' + rawText.substring(0,120), 'error'); return; }
+
+    let parsed;
+    try { parsed = JSON.parse(jsonMatch[0]); }
+    catch(pe) { showStatus('Parse error: ' + pe.message, 'error'); return; }
 
     if (!Array.isArray(parsed) || parsed.length === 0) {
-      showStatus('No transactions found in this PDF.', 'error'); return;
+      showStatus('No transactions found. Ensure PDF is not password-protected and contains transaction rows.', 'error'); return;
     }
 
     const newTxns = parsed.map((t, i) => ({
