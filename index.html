@@ -3,647 +3,349 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Credit Card Tracker — ri5al</title>
+<title>Credit Card Tracker</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
 <style>
-@import url('https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,400&display=swap');
-:root {
-  --bg:#0c0c0c; --s1:#161616; --s2:#1f1f1f; --s3:#282828;
-  --b1:#2a2a2a; --b2:#3a3a3a; --b3:#4a4a4a;
-  --tx:#efefef; --t2:#999; --t3:#555;
-  --acc:#c9f05a; --acc2:#8aaa2a;
-  --red:#ff6b6b; --grn:#5cffa0; --blu:#5cb8ff; --amb:#ffb84d; --pur:#c47fff;
-  --r:10px; --rs:6px;
-}
+@import url('https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=DM+Sans:wght@300;400;500&display=swap');
+:root{--bg:#0c0c0c;--s1:#161616;--s2:#1f1f1f;--b1:#2a2a2a;--b2:#3a3a3a;--tx:#efefef;--t2:#999;--t3:#555;--acc:#c9f05a;--red:#ff6b6b;--grn:#5cffa0;--blu:#5cb8ff;--amb:#ffb84d;--pur:#c47fff;--r:10px;--rs:6px}
 *{box-sizing:border-box;margin:0;padding:0}
 body{background:var(--bg);color:var(--tx);font-family:'DM Sans',sans-serif;font-size:14px;min-height:100vh}
 .app{max-width:1140px;margin:0 auto;padding:1.75rem 1.5rem 5rem}
-
-/* topbar */
 .topbar{display:flex;align-items:center;justify-content:space-between;margin-bottom:2rem;flex-wrap:wrap;gap:10px}
 .logo{font-family:'DM Mono',monospace;font-size:12px;color:var(--acc);letter-spacing:.08em}
 .logo span{color:var(--t2)}
-.top-actions{display:flex;gap:8px;flex-wrap:wrap}
-
-/* tabs strip */
-.tabs-wrap{display:flex;gap:0;margin-bottom:1.5rem;border-bottom:.5px solid var(--b2);overflow-x:auto;padding-bottom:0}
+.tabs-wrap{display:flex;margin-bottom:1.5rem;border-bottom:.5px solid var(--b2);overflow-x:auto}
 .tab{padding:8px 16px;font-size:13px;cursor:pointer;color:var(--t2);border-bottom:2px solid transparent;white-space:nowrap;transition:all .15s;background:transparent;border-top:none;border-left:none;border-right:none;font-family:'DM Sans',sans-serif}
-.tab:hover{color:var(--tx)}
-.tab.active{color:var(--acc);border-bottom-color:var(--acc)}
-.tab-add{padding:8px 14px;font-size:18px;cursor:pointer;color:var(--t3);background:transparent;border:none;font-family:'DM Sans',sans-serif;transition:color .15s}
+.tab:hover{color:var(--tx)}.tab.active{color:var(--acc);border-bottom-color:var(--acc)}
+.tab-add{padding:8px 14px;font-size:18px;cursor:pointer;color:var(--t3);background:transparent;border:none;transition:color .15s}
 .tab-add:hover{color:var(--acc)}
-
-/* cards section */
-.section-title{font-size:11px;color:var(--t2);text-transform:uppercase;letter-spacing:.08em;margin-bottom:10px}
-
-/* setup card */
-.setup-card{background:var(--s1);border:.5px solid var(--b2);border-left:3px solid var(--acc);border-radius:var(--r);padding:1.1rem 1.25rem;margin-bottom:1.25rem}
-.setup-card h3{font-size:14px;font-weight:500;margin-bottom:8px}
-.setup-step{font-size:12px;color:var(--t2);line-height:1.7;display:flex;gap:8px;margin-bottom:2px}
-.setup-step b{color:var(--tx);font-weight:500}
-.setup-step a{color:var(--acc);text-decoration:none}
-.setup-step a:hover{text-decoration:underline}
-
-/* url bar */
 .url-bar{display:flex;gap:8px;align-items:center;margin-bottom:1.25rem;flex-wrap:wrap}
-.url-label{font-size:12px;color:var(--t2);white-space:nowrap}
-.url-input{flex:1;min-width:260px;background:var(--s1);border:.5px solid var(--b2);border-radius:var(--rs);padding:8px 12px;color:var(--tx);font-family:'DM Mono',monospace;font-size:12px;outline:none;transition:border-color .15s}
-.url-input:focus{border-color:var(--acc)}
-.url-input::placeholder{color:var(--t3)}
-
-/* upload + meta row */
-.upload-meta{display:grid;grid-template-columns:1fr 280px;gap:12px;margin-bottom:1.25rem;align-items:start}
+.url-input{flex:1;min-width:260px;background:var(--s1);border:.5px solid var(--b2);border-radius:var(--rs);padding:8px 12px;color:var(--tx);font-family:'DM Mono',monospace;font-size:12px;outline:none}
+.url-input:focus{border-color:var(--acc)}.url-input::placeholder{color:var(--t3)}
+.upload-meta{display:grid;grid-template-columns:1fr 280px;gap:12px;margin-bottom:1.25rem}
 @media(max-width:680px){.upload-meta{grid-template-columns:1fr}}
-
-.upload-zone{border:1.5px dashed var(--b2);border-radius:var(--r);padding:1.75rem 1rem;text-align:center;cursor:pointer;transition:border-color .15s,background .15s;position:relative;height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px}
+.upload-zone{border:1.5px dashed var(--b2);border-radius:var(--r);padding:1.75rem;text-align:center;cursor:pointer;position:relative;min-height:160px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;transition:all .15s}
 .upload-zone:hover,.upload-zone.drag{border-color:var(--acc);background:rgba(201,240,90,.04)}
 .upload-zone input{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%}
-.upload-icon{font-size:1.75rem}
-.upload-title{font-size:14px;font-weight:500}
-.upload-sub{font-size:12px;color:var(--t2)}
-
-/* meta card */
-.meta-card{background:var(--s1);border:.5px solid var(--b2);border-radius:var(--r);padding:1rem 1.1rem;display:flex;flex-direction:column;gap:10px}
+.meta-card{background:var(--s1);border:.5px solid var(--b2);border-radius:var(--r);padding:1rem;display:flex;flex-direction:column;gap:10px}
 .meta-card label{font-size:11px;color:var(--t2);text-transform:uppercase;letter-spacing:.06em;display:block;margin-bottom:3px}
-.meta-input{width:100%;background:var(--s2);border:.5px solid var(--b2);border-radius:var(--rs);padding:7px 10px;color:var(--tx);font-family:'DM Sans',sans-serif;font-size:13px;outline:none;transition:border-color .15s}
-.meta-input:focus{border-color:var(--acc)}
-.meta-input::placeholder{color:var(--t3)}
-select.meta-input{cursor:pointer}
-
-/* status */
+.mi{width:100%;background:var(--s2);border:.5px solid var(--b2);border-radius:var(--rs);padding:7px 10px;color:var(--tx);font-family:'DM Sans',sans-serif;font-size:13px;outline:none}
+.mi:focus{border-color:var(--acc)}.mi::placeholder{color:var(--t3)}
 .status{padding:9px 14px;border-radius:var(--rs);font-size:13px;margin-bottom:1rem;display:none;align-items:center;gap:10px}
 .status.info{background:rgba(92,184,255,.1);border:.5px solid rgba(92,184,255,.3);color:var(--blu);display:flex}
 .status.success{background:rgba(92,255,160,.08);border:.5px solid rgba(92,255,160,.25);color:var(--grn);display:flex}
 .status.error{background:rgba(255,107,107,.1);border:.5px solid rgba(255,107,107,.3);color:var(--red);display:flex}
-.spinner{width:13px;height:13px;border:2px solid currentColor;border-top-color:transparent;border-radius:50%;animation:spin .7s linear infinite;flex-shrink:0}
+.sp{width:13px;height:13px;border:2px solid currentColor;border-top-color:transparent;border-radius:50%;animation:spin .7s linear infinite;flex-shrink:0}
 @keyframes spin{to{transform:rotate(360deg)}}
-
-/* stats */
 .stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:10px;margin-bottom:1.25rem}
 .stat{background:var(--s1);border:.5px solid var(--b1);border-radius:var(--r);padding:13px 15px}
-.stat-label{font-size:10px;color:var(--t2);text-transform:uppercase;letter-spacing:.07em;margin-bottom:5px}
-.stat-val{font-size:20px;font-weight:500;font-family:'DM Mono',monospace}
-.acc{color:var(--acc)} .red{color:var(--red)} .grn{color:var(--grn)} .blu{color:var(--blu)}
-
-/* toolbar */
-.toolbar{display:flex;gap:8px;margin-bottom:1rem;flex-wrap:wrap;align-items:center}
-.tb-input{background:var(--s1);border:.5px solid var(--b2);border-radius:var(--rs);padding:7px 11px;color:var(--tx);font-family:'DM Sans',sans-serif;font-size:13px;outline:none;transition:border-color .15s}
-.tb-input:focus{border-color:var(--acc)}
-.tb-input::placeholder{color:var(--t3)}
-.tb-input.search{flex:1;min-width:160px}
-select.tb-input{cursor:pointer;max-width:150px}
-
-/* buttons */
+.sl{font-size:10px;color:var(--t2);text-transform:uppercase;letter-spacing:.07em;margin-bottom:5px}
+.sv{font-size:20px;font-weight:500;font-family:'DM Mono',monospace}
+.ac{color:var(--acc)}.rd{color:var(--red)}.gn{color:var(--grn)}.bl{color:var(--blu)}
+.toolbar{display:flex;gap:8px;margin-bottom:1rem;flex-wrap:wrap}
+.ti{background:var(--s1);border:.5px solid var(--b2);border-radius:var(--rs);padding:7px 11px;color:var(--tx);font-size:13px;outline:none;font-family:'DM Sans',sans-serif}
+.ti.srch{flex:1;min-width:160px}
 .btn{padding:7px 13px;border-radius:var(--rs);border:.5px solid var(--b2);background:transparent;color:var(--tx);font-family:'DM Sans',sans-serif;font-size:13px;cursor:pointer;transition:all .15s;white-space:nowrap;display:inline-flex;align-items:center;gap:5px}
-.btn:hover{background:var(--s2)}
-.btn.acc{background:var(--acc);color:#0c0c0c;border-color:var(--acc);font-weight:500}
-.btn.acc:hover{background:#b8dc4a}
-.btn.red{color:var(--red);border-color:rgba(255,107,107,.25)}
-.btn.red:hover{background:rgba(255,107,107,.08)}
-.btn:disabled{opacity:.35;cursor:not-allowed}
-
-/* table */
-.table-wrap{background:var(--s1);border:.5px solid var(--b1);border-radius:var(--r);overflow:hidden;overflow-x:auto}
+.btn:hover{background:var(--s2)}.btn.ag{background:var(--acc);color:#0c0c0c;border-color:var(--acc);font-weight:500}
+.btn.ag:hover{background:#b8dc4a}.btn.ar{color:var(--red);border-color:rgba(255,107,107,.25)}
+.tw{background:var(--s1);border:.5px solid var(--b1);border-radius:var(--r);overflow:hidden;overflow-x:auto}
 table{width:100%;border-collapse:collapse;font-size:13px}
 thead th{background:var(--s2);padding:9px 13px;text-align:left;font-weight:500;font-size:10px;color:var(--t2);text-transform:uppercase;letter-spacing:.07em;border-bottom:.5px solid var(--b1);white-space:nowrap}
 tbody tr{border-bottom:.5px solid var(--b1);transition:background .1s}
 tbody tr:last-child{border-bottom:none}
 tbody tr:hover{background:var(--s2)}
-tbody tr.is-done td:not(.nodim){opacity:.4}
+tbody tr.dk td:not(.nd){opacity:.4}
 td{padding:9px 13px;vertical-align:middle}
-.col-done{width:46px;text-align:center}
-.col-date{width:95px;font-family:'DM Mono',monospace;font-size:12px;color:var(--t2)}
-.col-bank{width:110px}
-.col-merchant{max-width:200px}
-.col-amount{width:120px;text-align:right;font-family:'DM Mono',monospace}
-.col-cat{width:130px}
-.col-remark{width:190px}
-.merchant-name{font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:190px}
-.debit{color:var(--red)} .credit{color:var(--grn)}
-.bank-badge{display:inline-block;padding:2px 8px;border-radius:20px;font-size:11px;font-weight:500;background:rgba(92,184,255,.12);color:var(--blu)}
-.cat{display:inline-block;padding:2px 8px;border-radius:20px;font-size:11px;font-weight:500}
-.cat-food{background:rgba(201,240,90,.12);color:var(--acc)}
-.cat-shop{background:rgba(92,184,255,.12);color:var(--blu)}
-.cat-trans{background:rgba(255,184,77,.12);color:var(--amb)}
-.cat-travel{background:rgba(92,255,160,.12);color:var(--grn)}
-.cat-health{background:rgba(255,107,107,.1);color:var(--red)}
-.cat-ent{background:rgba(196,127,255,.12);color:var(--pur)}
-.cat-util{background:rgba(153,153,153,.12);color:var(--t2)}
-.cat-other{background:rgba(68,68,68,.3);color:var(--t2)}
-.remark-in{width:100%;background:transparent;border:none;border-bottom:.5px solid transparent;color:var(--tx);font-family:'DM Sans',sans-serif;font-size:13px;padding:2px 4px;outline:none;transition:border-color .15s}
-.remark-in:focus{border-bottom-color:var(--acc)}
-.remark-in::placeholder{color:var(--t3)}
+.dbt{color:var(--red)}.cdt{color:var(--grn)}
+.bb{display:inline-block;padding:2px 8px;border-radius:20px;font-size:11px;background:rgba(92,184,255,.12);color:var(--blu)}
+.bg{display:inline-block;padding:2px 8px;border-radius:20px;font-size:11px;font-weight:500}
+.bf{background:rgba(201,240,90,.12);color:var(--acc)}.bs{background:rgba(92,184,255,.12);color:var(--blu)}
+.btr{background:rgba(255,184,77,.12);color:var(--amb)}.btv{background:rgba(92,255,160,.12);color:var(--grn)}
+.bh{background:rgba(255,107,107,.1);color:var(--red)}.be{background:rgba(196,127,255,.12);color:var(--pur)}
+.bu{background:rgba(153,153,153,.12);color:var(--t2)}.bo{background:rgba(68,68,68,.3);color:var(--t2)}
+.ri{width:100%;background:transparent;border:none;border-bottom:.5px solid transparent;color:var(--tx);font-size:13px;padding:2px 4px;outline:none;font-family:'DM Sans',sans-serif}
+.ri:focus{border-bottom-color:var(--acc)}.ri::placeholder{color:var(--t3)}
 input[type=checkbox]{width:15px;height:15px;cursor:pointer;accent-color:var(--acc)}
-
 .empty{text-align:center;padding:3rem 1rem;color:var(--t2)}
-.empty-icon{font-size:2rem;opacity:.35;margin-bottom:8px}
-
-/* monthly summary bar */
-.month-summary{display:flex;gap:16px;align-items:center;flex-wrap:wrap;padding:10px 14px;background:var(--s1);border:.5px solid var(--b1);border-radius:var(--rs);margin-bottom:1rem;font-size:12px;color:var(--t2)}
-.month-summary b{color:var(--tx);font-weight:500}
-
-::-webkit-scrollbar{width:5px;height:5px}
-::-webkit-scrollbar-track{background:transparent}
-::-webkit-scrollbar-thumb{background:var(--b2);border-radius:3px}
+.ms{display:flex;gap:16px;flex-wrap:wrap;padding:10px 14px;background:var(--s1);border:.5px solid var(--b1);border-radius:var(--rs);margin-bottom:1rem;font-size:12px;color:var(--t2)}
+::-webkit-scrollbar{width:5px;height:5px}::-webkit-scrollbar-track{background:transparent}::-webkit-scrollbar-thumb{background:var(--b2);border-radius:3px}
 </style>
 </head>
 <body>
 <div class="app">
-
-<!-- topbar -->
 <div class="topbar">
   <div class="logo">ri5al <span>/ credit card tracker</span></div>
-  <div class="top-actions" id="topActions" style="display:none">
-    <button class="btn red" onclick="clearMonth()">✕ Clear month</button>
-    <button class="btn acc" onclick="sendToSheets()" id="sheetsBtn">↑ Send to Google Sheets</button>
+  <div style="display:flex;gap:8px">
+    <button class="btn ar" onclick="clearMonth()" id="clrBtn" style="display:none">✕ Clear</button>
+    <button class="btn ag" onclick="sendToSheets()" id="shBtn" style="display:none">↑ Send to Sheets</button>
   </div>
 </div>
-
-<!-- setup card -->
-<div class="setup-card" id="setupCard">
-  <h3>⚙️ One-time Google Sheets setup — do this once, works forever</h3>
-  <div class="setup-step"><b>1.</b> Go to <a href="https://sheets.google.com" target="_blank">sheets.google.com</a> → create a new blank sheet → name it <b>Credit Card Tracker</b></div>
-  <div class="setup-step"><b>2.</b> Click <b>Extensions → Apps Script</b> in the top menu</div>
-  <div class="setup-step"><b>3.</b> Delete everything in the editor → click the button below to copy the script → paste it → click <b>Save 💾</b></div>
-  <div class="setup-step"><b>4.</b> Click <b>Deploy → New deployment → Web app</b> → Execute as: <b>Me</b> → Who has access: <b>Anyone</b> → click <b>Deploy</b></div>
-  <div class="setup-step"><b>5.</b> Copy the long Web App URL it gives you → paste it in the field below</div>
-  <div style="margin-top:10px;display:flex;align-items:center;gap:10px">
-    <button class="btn" style="font-size:12px" onclick="copyScript()">📋 Copy Apps Script code</button>
-    <span id="copyOk" style="font-size:12px;color:var(--acc);display:none">✓ Copied!</span>
-    <button class="btn" style="font-size:12px" onclick="document.getElementById('setupCard').style.display='none'">Hide this guide</button>
-  </div>
-</div>
-
-<!-- url bar -->
 <div class="url-bar">
-  <span class="url-label">Sheets URL:</span>
-  <input class="url-input" id="sheetsUrl" type="text" placeholder="https://script.google.com/macros/s/YOUR_DEPLOYMENT_ID/exec" oninput="saveUrl()">
+  <span style="font-size:12px;color:var(--t2);white-space:nowrap">Sheets URL:</span>
+  <input class="url-input" id="sheetsUrl" type="text" placeholder="https://script.google.com/macros/s/YOUR_ID/exec" oninput="saveUrl()">
   <button class="btn" style="font-size:12px" onclick="testConn()">Test ↗</button>
 </div>
-
-<!-- month tabs -->
-<div class="tabs-wrap" id="tabsWrap">
-  <!-- tabs injected by JS -->
-  <button class="tab-add" onclick="addMonth()" title="Add new month">+</button>
-</div>
-
-<!-- upload + meta -->
+<div class="tabs-wrap" id="tabsWrap"><button class="tab-add" onclick="addMonth()">+</button></div>
 <div class="upload-meta">
-  <div class="upload-zone" id="dropZone" ondragover="onDrag(event,true)" ondragleave="onDrag(event,false)" ondrop="onDrop(event)">
+  <div class="upload-zone" id="dz" ondragover="og(event,true)" ondragleave="og(event,false)" ondrop="od(event)">
     <input type="file" accept=".pdf" onchange="handleFile(this.files[0])">
-    <div class="upload-icon">📄</div>
-    <div class="upload-title">Drop statement PDF here</div>
-    <div class="upload-sub">Any bank · Claude reads it automatically</div>
+    <div style="font-size:2rem">📄</div>
+    <div style="font-size:14px;font-weight:500">Drop credit card statement PDF</div>
+    <div style="font-size:12px;color:var(--t2)">HDFC · Axis · SBI · ICICI · any Indian bank · any UAE bank</div>
   </div>
-
   <div class="meta-card">
-    <div>
-      <label>Bank name</label>
-      <input class="meta-input" id="bankName" type="text" placeholder="e.g. Emirates NBD, SBI, HDFC...">
-    </div>
-    <div>
-      <label>Card / nickname</label>
-      <input class="meta-input" id="cardName" type="text" placeholder="e.g. Visa Platinum, Rewards Card...">
-    </div>
-    <div>
-      <label>Month</label>
-      <select class="meta-input" id="monthSelect"></select>
-    </div>
-    <div>
-      <label>Currency</label>
-      <select class="meta-input" id="currency">
-        <option value="AED">AED — UAE Dirham</option>
+    <div><label>Bank name</label><input class="mi" id="bankName" type="text" placeholder="e.g. HDFC, Axis, SBI, ENBD..."></div>
+    <div><label>Card nickname</label><input class="mi" id="cardName" type="text" placeholder="e.g. Millennia, Visa Platinum..."></div>
+    <div><label>Month</label><select class="mi" id="monthSel"></select></div>
+    <div><label>Currency</label>
+      <select class="mi" id="curSel">
         <option value="INR">INR — Indian Rupee</option>
+        <option value="AED">AED — UAE Dirham</option>
         <option value="USD">USD — US Dollar</option>
-        <option value="EUR">EUR — Euro</option>
-        <option value="GBP">GBP — British Pound</option>
       </select>
     </div>
   </div>
 </div>
-
-<!-- status -->
-<div class="status" id="statusBar">
-  <div class="spinner" id="spinner" style="display:none"></div>
-  <span id="statusMsg"></span>
+<div class="status" id="sb"><div class="sp" id="sp" style="display:none"></div><span id="sm"></span></div>
+<div id="mc"></div>
 </div>
-
-<!-- per-month content area -->
-<div id="monthContent"></div>
-
-</div>
-
-<!-- ═══════════════════ SCRIPT ═══════════════════ -->
 <script>
-pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
-
-// ── Data store: { "Jan 2025": [ ...transactions ] }
-let store = {};
-let activeMonth = '';
-
-const MONTHS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
-const NOW = new Date();
-
-// ── Init ──
-(function init() {
-  loadStore();
-  const saved = localStorage.getItem('sheetsUrl');
-  if (saved) document.getElementById('sheetsUrl').value = saved;
-
-  // populate month select
-  const sel = document.getElementById('monthSelect');
-  for (let y = NOW.getFullYear(); y >= NOW.getFullYear()-2; y--) {
-    for (let m = 11; m >= 0; m--) {
-      const label = MONTHS[m] + ' ' + y;
-      const o = document.createElement('option');
-      o.value = label; o.textContent = label;
-      sel.appendChild(o);
-    }
-  }
-  sel.value = MONTHS[NOW.getMonth()] + ' ' + NOW.getFullYear();
-
-  renderTabs();
-  if (Object.keys(store).length > 0) {
-    switchMonth(Object.keys(store)[0]);
-  }
+pdfjsLib.GlobalWorkerOptions.workerSrc='https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+var store={},am='';
+var MN=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+var NOW=new Date();
+(function(){
+  try{store=JSON.parse(localStorage.getItem('cc2')||'{}');}catch(e){store={};}
+  var sv=localStorage.getItem('surl');if(sv)document.getElementById('sheetsUrl').value=sv;
+  var sel=document.getElementById('monthSel');
+  for(var y=NOW.getFullYear();y>=NOW.getFullYear()-2;y--)
+    for(var m=11;m>=0;m--){var o=document.createElement('option');o.value=MN[m]+' '+y;o.textContent=MN[m]+' '+y;sel.appendChild(o);}
+  sel.value=MN[NOW.getMonth()]+' '+NOW.getFullYear();
+  rTabs();
+  var k=Object.keys(store);if(k.length)sw(k[0]);
 })();
-
-function loadStore() {
-  try { store = JSON.parse(localStorage.getItem('ccStore') || '{}'); } catch { store = {}; }
-}
-function saveStore() { localStorage.setItem('ccStore', JSON.stringify(store)); }
-function saveUrl() { localStorage.setItem('sheetsUrl', document.getElementById('sheetsUrl').value.trim()); }
-
-// ── Tabs ──
-function renderTabs() {
-  const wrap = document.getElementById('tabsWrap');
-  const addBtn = wrap.querySelector('.tab-add');
-  // remove old tabs
-  wrap.querySelectorAll('.tab').forEach(t => t.remove());
-
-  const months = Object.keys(store);
-  months.forEach(m => {
-    const btn = document.createElement('button');
-    btn.className = 'tab' + (m === activeMonth ? ' active' : '');
-    btn.textContent = m + ' (' + (store[m]?.length || 0) + ')';
-    btn.onclick = () => switchMonth(m);
-    wrap.insertBefore(btn, addBtn);
+function saveUrl(){localStorage.setItem('surl',document.getElementById('sheetsUrl').value.trim());}
+function ss(){localStorage.setItem('cc2',JSON.stringify(store));}
+function rTabs(){
+  var w=document.getElementById('tabsWrap'),a=w.querySelector('.tab-add');
+  w.querySelectorAll('.tab').forEach(function(t){t.remove();});
+  Object.keys(store).forEach(function(m){
+    var b=document.createElement('button');
+    b.className='tab'+(m===am?' active':'');
+    b.textContent=m+' ('+(store[m]?store[m].length:0)+')';
+    b.onclick=function(){sw(m);};
+    w.insertBefore(b,a);
   });
 }
+function addMonth(){var m=document.getElementById('monthSel').value;if(!store[m])store[m]=[];ss();sw(m);}
+function sw(m){am=m;rTabs();rMC();}
+function og(e,a){e.preventDefault();document.getElementById('dz').classList.toggle('drag',a);}
+function od(e){e.preventDefault();og(e,false);var f=e.dataTransfer.files[0];if(f&&f.type==='application/pdf')handleFile(f);else showSt('Please drop a PDF file.','error');}
 
-function addMonth() {
-  const m = document.getElementById('monthSelect').value;
-  if (!store[m]) store[m] = [];
-  saveStore();
-  switchMonth(m);
-}
-
-function switchMonth(m) {
-  activeMonth = m;
-  renderTabs();
-  renderMonthContent();
-}
-
-// ── Drag drop ──
-function onDrag(e, a) { e.preventDefault(); document.getElementById('dropZone').classList.toggle('drag', a); }
-function onDrop(e) { e.preventDefault(); onDrag(e, false); const f = e.dataTransfer.files[0]; if (f?.type==='application/pdf') handleFile(f); else showStatus('Please drop a PDF file.','error'); }
-
-// ── Read PDF ──
-async function handleFile(file) {
-  if (!file) return;
-  const month = document.getElementById('monthSelect').value;
-  const bank = document.getElementById('bankName').value.trim() || 'Unknown Bank';
-
-  if (!store[month]) store[month] = [];
-  activeMonth = month;
-
-  showStatus('Reading PDF...', 'info', true);
-  try {
-    const buf = await file.arrayBuffer();
-    const pdf = await pdfjsLib.getDocument({data: buf}).promise;
-    let text = '';
-    for (let i = 1; i <= pdf.numPages; i++) {
-      const page = await pdf.getPage(i);
-      const c = await page.getTextContent();
-      text += c.items.map(x => x.str).join(' ') + '\n';
+function handleFile(file){
+  if(!file)return;
+  var month=document.getElementById('monthSel').value;
+  var bank=document.getElementById('bankName').value.trim()||'Unknown Bank';
+  var card=document.getElementById('cardName').value.trim();
+  var cur=document.getElementById('curSel').value;
+  if(!store[month])store[month]=[];
+  am=month;
+  showSt('Reading PDF...','info',true);
+  file.arrayBuffer().then(function(buf){
+    return pdfjsLib.getDocument({data:buf}).promise;
+  }).then(function(pdf){
+    var pages=[];
+    for(var i=1;i<=pdf.numPages;i++) pages.push(i);
+    return pages.reduce(function(p,pgNum){
+      return p.then(function(lines){
+        return pdf.getPage(pgNum).then(function(page){
+          return page.getTextContent().then(function(c){
+            var byY={};
+            c.items.forEach(function(item){
+              var y=Math.round(item.transform[5]);
+              if(!byY[y])byY[y]=[];
+              byY[y].push({x:item.transform[4],str:item.str});
+            });
+            Object.keys(byY).sort(function(a,b){return Number(b)-Number(a);}).forEach(function(y){
+              var row=byY[y].sort(function(a,b){return a.x-b.x;}).map(function(i){return i.str;}).join(' ').trim();
+              if(row)lines.push(row);
+            });
+            return lines;
+          });
+        });
+      });
+    },Promise.resolve([]));
+  }).then(function(lines){
+    showSt('Parsing transactions...','info',true);
+    var txns=parseTxns(lines,bank,card,cur,month);
+    if(!txns.length){
+      showSt('No transactions found. Make sure this is a credit card statement PDF with transaction rows.','error');
+      return;
     }
-    showStatus('Sending to Claude AI...', 'info', true);
-    await extractWithClaude(text, bank, month, file.name);
-  } catch(err) { showStatus('Could not read PDF: ' + err.message, 'error'); }
+    store[month]=(store[month]||[]).concat(txns);
+    ss();
+    showSt('✓ Added '+txns.length+' transactions from '+bank,'success');
+    rTabs();rMC();
+    document.getElementById('clrBtn').style.display='inline-flex';
+    document.getElementById('shBtn').style.display='inline-flex';
+  }).catch(function(err){showSt('Error: '+err.message,'error');});
 }
 
-// ── Claude extraction ──
-async function extractWithClaude(text, bank, month, filename) {
-  const cur = document.getElementById('currency').value;
-  const card = document.getElementById('cardName').value.trim();
+function parseTxns(lines,bank,card,cur,month){
+  var txns=[];
+  var dRe=/^(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{2,4})/;
+  var aRe=/(\d{1,3}(?:,\d{2,3})*\.\d{2})/g;
+  var skip=/reward\s*point|gst\s*summ|igst|cgst|sgst|minimum\s*due|credit\s*limit|available\s*credit|statement\s*date|billing\s*period|opening\s*balance|previous\s*statement|finance\s*charg|schedule\s*of\s*charg|important\s*info|page\s*[:\-]\s*\d|hsn\s*code|gstin|dear\s*customer|contact\s*us|grievance|nodal\s*officer|useful\s*links|purchase\s*indicator|points\s*expir|edge\s*reward|customer\s*id|balance\s*as\s*on|total\s*amount\s*due|minimum\s*payment\s*due|payment\s*summary|credit\s*card\s*number|making\s*only\s*the|repayment|emi|cash\s*withdrawal\s*fee|overdue\s*penalty|foreign\s*currency\s*transaction\s*fee|joining\s*fee|annual\s*fee|cheque\s*return|surcharge|add\s*on\s*card|over\s*limit\s*penalty|duplicate\s*statement/i;
 
-  const prompt = `You are extracting transactions from an Indian bank credit card statement. Return ONLY a valid JSON array, no explanation, no markdown.
-
-RULES:
-- Extract every row from the transaction table (Domestic Transactions, International Transactions, Account Summary)
-- "date": DD/MM/YYYY format. If date has time like "07/03/2026| 16:33" just use "07/03/2026"
-- "merchant": clean merchant name only. Remove ref numbers, codes in brackets like (Ref# ST2606...). Examples: "BPPY CC PAYMENT DP016066163303VEzwx (Ref# ST260670083000010406536)" → "BPPY CC Payment", "LOFT AND ORIGINALS LLPKOZHIKODE" → "Loft and Originals", "CLEARTRIP PRIVATE LIMIT" → "Cleartrip", "BBPS PAYMENT RECEIVED - DP016072115119SN3TMU" → "BBPS Payment Received"
-- "amount": positive number only, no currency symbols. "C 8,000.00" or "8,000.00 Cr" or "Rs. 8000" → 8000
-- "type": rows with + sign or "Cr" or "PAYMENT RECEIVED" or "CREDIT" = "credit". All purchases/spends = "debit"
-- "category": Food & Dining, Shopping, Transport, Travel, Health, Fuel, Utilities, Entertainment, Groceries, Electronics, Other
-- SKIP: GST entries, reward points rows, finance charge calculation rows, header rows, summary rows
-- Include ALL actual transactions including payments received
-
-Return [] only if truly no transactions exist.
-
-Statement text:
-${text.substring(0, 16000)}`;
-
-  try {
-    const res = await fetch('https://api.anthropic.com/v1/messages', {
-      method: 'POST',
-      headers: {'Content-Type':'application/json','x-api-key':'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','anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},
-      body: JSON.stringify({
-        model: 'claude-sonnet-4-20250514',
-        max_tokens: 4000,
-        messages: [{role:'user', content: prompt}]
-      })
+  lines.forEach(function(line){
+    if(!line||line.length<8)return;
+    if(skip.test(line))return;
+    var dm=line.match(dRe);
+    if(!dm)return;
+    var y=dm[3];if(y.length===2)y='20'+y;
+    var date=dm[1].padStart(2,'0')+'/'+dm[2].padStart(2,'0')+'/'+y;
+    var ams=[];var m;var re=new RegExp(aRe.source,'g');
+    while((m=re.exec(line))!==null){
+      var v=parseFloat(m[1].replace(/,/g,''));
+      if(v>0&&v<99999999)ams.push(v);
+    }
+    if(!ams.length)return;
+    var amount=ams[ams.length-1];
+    var merchant=line
+      .replace(dRe,'')
+      .replace(/\|\s*\d{2}:\d{2}(:\d{2})?/g,'')
+      .replace(/\(Ref#[^)]+\)/gi,'')
+      .replace(/Ref#\s*\S+/gi,'')
+      .replace(/\b(ST|DP|VT|UPI|NEFT|IMPS)\d{8,}/gi,'')
+      .replace(new RegExp(aRe.source,'g'),'')
+      .replace(/\b(Cr|Dr|CR|DR)\b/g,'')
+      .replace(/[+\-|*]/g,' ')
+      .replace(/\s{2,}/g,' ')
+      .trim();
+    if(!merchant||merchant.length<2)merchant='Transaction';
+    merchant=merchant.split(' ').filter(function(w){return w.length>0;}).map(function(w){return w.charAt(0).toUpperCase()+w.slice(1).toLowerCase();}).join(' ');
+    var isCredit=/\+\s*(?:C\s*)?\d|\bCr\b|PAYMENT\s*RECEIVED|REFUND|REVERSAL|CASH\s*BACK|CREDIT\s*RECEIVED|\d+\s*Cr\b/i.test(line);
+    txns.push({
+      id:Date.now()+'_'+Math.random().toString(36).slice(2,8),
+      bank:bank,card:card||'',currency:cur,date:date,
+      merchant:merchant,amount:amount,type:isCredit?'credit':'debit',
+      category:gCat(merchant+' '+line),remarks:'',done:false,month:month
     });
-    const data = await res.json();
-
-    if (data.error) {
-      showStatus('API error: ' + data.error.message, 'error'); return;
-    }
-
-    const rawText = (data.content?.[0]?.text || '').replace(/```json|```/g,'').trim();
-    if (!rawText) { showStatus('AI returned empty response. Try again.', 'error'); return; }
-
-    const jsonMatch = rawText.match(/\[[\s\S]*\]/);
-    if (!jsonMatch) { showStatus('Could not find transactions in response: ' + rawText.substring(0,120), 'error'); return; }
-
-    let parsed;
-    try { parsed = JSON.parse(jsonMatch[0]); }
-    catch(pe) { showStatus('Parse error: ' + pe.message, 'error'); return; }
-
-    if (!Array.isArray(parsed) || parsed.length === 0) {
-      showStatus('No transactions found. Ensure PDF is not password-protected and contains transaction rows.', 'error'); return;
-    }
-
-    const newTxns = parsed.map((t, i) => ({
-      id: Date.now() + '_' + i,
-      bank,
-      card: card || '',
-      currency: cur,
-      date: t.date || '',
-      merchant: t.merchant || 'Unknown',
-      amount: parseFloat(t.amount) || 0,
-      type: t.type || 'debit',
-      category: t.category || 'Other',
-      remarks: '',
-      done: false,
-      month
-    }));
-
-    store[month] = [...(store[month] || []), ...newTxns];
-    saveStore();
-    showStatus(`✓ Added ${newTxns.length} transactions from ${bank} (${filename})`, 'success');
-    renderTabs();
-    renderMonthContent();
-    document.getElementById('topActions').style.display = 'flex';
-  } catch(err) { showStatus('AI extraction failed: ' + err.message, 'error'); }
+  });
+  return txns;
 }
 
-// ── Render month content ──
-function renderMonthContent() {
-  const cont = document.getElementById('monthContent');
-  if (!activeMonth || !store[activeMonth]) {
-    cont.innerHTML = '<div class="empty"><div class="empty-icon">📂</div>Click + to add a month, then drop a PDF above.</div>';
-    document.getElementById('topActions').style.display = 'none';
-    return;
-  }
+function gCat(t){
+  var s=t.toLowerCase();
+  if(/zomato|swiggy|restaurant|cafe|\bfood\b|kitchen|dhaba|pizza|burger|kfc|mcdonald|starbucks|haldiram|biryani|diner/.test(s))return'Food & Dining';
+  if(/amazon|flipkart|myntra|ajio|nykaa|shoppers|reliance.digital|croma|vijay.sales|tata.cliq|meesho/.test(s))return'Shopping';
+  if(/petrol|fuel|\bhp\b|bharat.petro|indian.oil|shell|iocl|bpcl/.test(s))return'Fuel';
+  if(/uber|ola|rapido|metro|irctc|railway|redbus|cleartrip|transport/.test(s))return'Transport';
+  if(/makemytrip|goibibo|booking\.|airbnb|flight|airline|indigo|air.india|spicejet|vistara/.test(s))return'Travel';
+  if(/hospital|pharmacy|medical|doctor|apollo|fortis|medplus|health|clinic|diagnostic/.test(s))return'Health';
+  if(/netflix|hotstar|spotify|prime.video|gaming|cinema|pvr|inox|bookmyshow/.test(s))return'Entertainment';
+  if(/electricity|water|\bgas\b|broadband|airtel|jio|bsnl|vodafone|\bvi\b|bbps|recharge|postpaid/.test(s))return'Utilities';
+  if(/bigbasket|blinkit|zepto|dmart|grofer|supermarket|grocery/.test(s))return'Groceries';
+  if(/apple|samsung|oneplus|\bmi\b|realme|oppo|vivo|laptop|iphone/.test(s))return'Electronics';
+  return'Other';
+}
 
-  const txns = store[activeMonth];
-  if (txns.length === 0) {
-    cont.innerHTML = '<div class="empty"><div class="empty-icon">📄</div>No transactions yet for ' + activeMonth + '. Drop a PDF above.</div>';
-    document.getElementById('topActions').style.display = 'none';
-    return;
-  }
-
-  document.getElementById('topActions').style.display = 'flex';
-
-  // build stats
-  const debit = txns.filter(t=>t.type==='debit').reduce((s,t)=>s+t.amount,0);
-  const credit = txns.filter(t=>t.type==='credit').reduce((s,t)=>s+t.amount,0);
-  const done = txns.filter(t=>t.done).length;
-  const banks = [...new Set(txns.map(t=>t.bank))];
-
-  // group by bank for summary
-  const bankTotals = banks.map(b => {
-    const bt = txns.filter(t=>t.bank===b&&t.type==='debit').reduce((s,t)=>s+t.amount,0);
-    return `<span><b>${b}:</b> ${txns[0]?.currency||'AED'} ${bt.toLocaleString('en',{minimumFractionDigits:2,maximumFractionDigits:2})}</span>`;
+function rMC(){
+  var c=document.getElementById('mc');
+  if(!am||!store[am]){c.innerHTML='<div class="empty">Click + to add a month, then drop a PDF above.</div>';return;}
+  var txns=store[am];
+  if(!txns.length){c.innerHTML='<div class="empty">No transactions for '+am+'. Drop a PDF above.</div>';return;}
+  var dbt=txns.filter(function(t){return t.type==='debit';}).reduce(function(s,t){return s+t.amount;},0);
+  var crd=txns.filter(function(t){return t.type==='credit';}).reduce(function(s,t){return s+t.amount;},0);
+  var dn=txns.filter(function(t){return t.done;}).length;
+  var banks=[...new Set(txns.map(function(t){return t.bank;}))];
+  var cats=[...new Set(txns.map(function(t){return t.category;}))].sort();
+  var bSum=banks.map(function(b){
+    var bt=txns.filter(function(t){return t.bank===b&&t.type==='debit';}).reduce(function(s,t){return s+t.amount;},0);
+    return '<span><b>'+b+':</b> '+fmt(bt,txns[0].currency)+'</span>';
   }).join('');
-
-  // unique categories for filter
-  const cats = [...new Set(txns.map(t=>t.category))].sort();
-  const catOpts = cats.map(c=>`<option value="${c}">${c}</option>`).join('');
-  const bankOpts = banks.map(b=>`<option value="${b}">${b}</option>`).join('');
-
-  cont.innerHTML = `
-    <div class="stats">
-      <div class="stat"><div class="stat-label">Transactions</div><div class="stat-val acc">${txns.length}</div></div>
-      <div class="stat"><div class="stat-label">Total debits</div><div class="stat-val red">${fmtAmt(debit, txns[0]?.currency)}</div></div>
-      <div class="stat"><div class="stat-label">Total credits</div><div class="stat-val grn">${fmtAmt(credit, txns[0]?.currency)}</div></div>
-      <div class="stat"><div class="stat-label">Banks loaded</div><div class="stat-val blu">${banks.length}</div></div>
-      <div class="stat"><div class="stat-label">Verified</div><div class="stat-val">${done} / ${txns.length}</div></div>
-    </div>
-
-    <div class="month-summary">
-      <span style="color:var(--t2)">Breakdown by bank:</span>
-      ${bankTotals}
-    </div>
-
-    <div class="toolbar">
-      <input class="tb-input search" type="text" id="searchInput" placeholder="🔍  Search merchant..." oninput="filterTable()">
-      <select class="tb-input" id="bankFilter" onchange="filterTable()">
-        <option value="">All banks</option>
-        ${bankOpts}
-      </select>
-      <select class="tb-input" id="catFilter" onchange="filterTable()">
-        <option value="">All categories</option>
-        ${catOpts}
-      </select>
-      <select class="tb-input" id="statusFilter" onchange="filterTable()">
-        <option value="">All items</option>
-        <option value="pending">Pending only</option>
-        <option value="done">Done only</option>
-      </select>
-    </div>
-
-    <div class="table-wrap">
-      <table>
-        <thead>
-          <tr>
-            <th class="col-done">Done</th>
-            <th class="col-date">Date</th>
-            <th class="col-bank">Bank</th>
-            <th class="col-merchant">Merchant</th>
-            <th class="col-amount">Amount</th>
-            <th class="col-cat">Category</th>
-            <th class="col-remark">Remarks</th>
-          </tr>
-        </thead>
-        <tbody id="tableBody"></tbody>
-      </table>
-    </div>
-    <div class="empty" id="emptyMsg" style="display:none"><div class="empty-icon">🔍</div>No matches.</div>
-  `;
-
-  filterTable();
+  c.innerHTML='<div class="stats"><div class="stat"><div class="sl">Transactions</div><div class="sv ac">'+txns.length+'</div></div><div class="stat"><div class="sl">Total debits</div><div class="sv rd">'+fmt(dbt,txns[0].currency)+'</div></div><div class="stat"><div class="sl">Total credits</div><div class="sv gn">'+fmt(crd,txns[0].currency)+'</div></div><div class="stat"><div class="sl">Banks</div><div class="sv bl">'+banks.length+'</div></div><div class="stat"><div class="sl">Verified</div><div class="sv" id="dv">'+dn+' / '+txns.length+'</div></div></div>'
+    +'<div class="ms"><span>By bank:</span>'+bSum+'</div>'
+    +'<div class="toolbar"><input class="ti srch" type="text" id="si" placeholder="Search merchant..." oninput="ft()"><select class="ti" id="bf" onchange="ft()"><option value="">All banks</option>'+banks.map(function(b){return'<option>'+b+'</option>';}).join('')+'</select><select class="ti" id="cf" onchange="ft()"><option value="">All categories</option>'+cats.map(function(c){return'<option>'+c+'</option>';}).join('')+'</select><select class="ti" id="sf" onchange="ft()"><option value="">All</option><option value="pending">Pending</option><option value="done">Done</option></select></div>'
+    +'<div class="tw"><table><thead><tr><th style="width:46px;text-align:center">Done</th><th style="width:100px">Date</th><th style="width:110px">Bank</th><th>Merchant</th><th style="width:130px;text-align:right">Amount</th><th style="width:130px">Category</th><th style="width:190px">Remarks</th></tr></thead><tbody id="tb"></tbody></table></div>'
+    +'<div class="empty" id="em" style="display:none">No matches.</div>';
+  ft();
 }
 
-function filterTable() {
-  if (!activeMonth) return;
-  const txns = store[activeMonth] || [];
-  const s = (document.getElementById('searchInput')?.value||'').toLowerCase();
-  const bf = document.getElementById('bankFilter')?.value||'';
-  const cf = document.getElementById('catFilter')?.value||'';
-  const sf = document.getElementById('statusFilter')?.value||'';
-
-  const filtered = txns.filter(t => {
-    if (s && !t.merchant.toLowerCase().includes(s) && !t.bank.toLowerCase().includes(s)) return false;
-    if (bf && t.bank !== bf) return false;
-    if (cf && t.category !== cf) return false;
-    if (sf === 'pending' && t.done) return false;
-    if (sf === 'done' && !t.done) return false;
+function ft(){
+  if(!am)return;
+  var txns=store[am]||[];
+  var s=(document.getElementById('si')||{}).value||'';s=s.toLowerCase();
+  var bf=(document.getElementById('bf')||{}).value||'';
+  var cf=(document.getElementById('cf')||{}).value||'';
+  var sf=(document.getElementById('sf')||{}).value||'';
+  var fil=txns.filter(function(t){
+    if(s&&t.merchant.toLowerCase().indexOf(s)<0&&t.bank.toLowerCase().indexOf(s)<0)return false;
+    if(bf&&t.bank!==bf)return false;
+    if(cf&&t.category!==cf)return false;
+    if(sf==='pending'&&t.done)return false;
+    if(sf==='done'&&!t.done)return false;
     return true;
   });
-
-  const tbody = document.getElementById('tableBody');
-  const emptyMsg = document.getElementById('emptyMsg');
-  if (!tbody) return;
-
-  if (filtered.length === 0) {
-    tbody.innerHTML = '';
-    if(emptyMsg) emptyMsg.style.display = 'block';
-    return;
-  }
-  if(emptyMsg) emptyMsg.style.display = 'none';
-
-  tbody.innerHTML = filtered.map(t => `
-    <tr class="${t.done?'is-done':''}" id="tr-${t.id}">
-      <td class="col-done nodim"><input type="checkbox" ${t.done?'checked':''} onchange="toggleDone('${t.id}',this.checked)"></td>
-      <td class="col-date">${esc(t.date)}</td>
-      <td class="col-bank"><span class="bank-badge">${esc(t.bank)}</span>${t.card?`<div style="font-size:10px;color:var(--t3);margin-top:2px">${esc(t.card)}</div>`:''}</td>
-      <td class="col-merchant"><div class="merchant-name">${esc(t.merchant)}</div></td>
-      <td class="col-amount ${t.type==='credit'?'credit':'debit'}">${t.type==='credit'?'+':'-'} ${fmtAmt(t.amount,t.currency)}</td>
-      <td class="col-cat"><span class="cat ${catCls(t.category)}">${esc(t.category)}</span></td>
-      <td class="col-remark"><input class="remark-in" type="text" placeholder="Add note..." value="${esc(t.remarks)}" onchange="updateRemark('${t.id}',this.value)"></td>
-    </tr>
-  `).join('');
+  var tb=document.getElementById('tb'),em=document.getElementById('em');
+  if(!tb)return;
+  if(!fil.length){tb.innerHTML='';if(em)em.style.display='block';return;}
+  if(em)em.style.display='none';
+  tb.innerHTML=fil.map(function(t){
+    return'<tr class="'+(t.done?'dk':'')+'" id="r-'+t.id+'">'
+      +'<td style="width:46px;text-align:center" class="nd"><input type="checkbox" '+(t.done?'checked':'')+' onchange="td_(\''+t.id+'\',this.checked)"></td>'
+      +'<td style="font-family:\'DM Mono\',monospace;font-size:12px;color:var(--t2)">'+esc(t.date)+'</td>'
+      +'<td><span class="bb">'+esc(t.bank)+'</span></td>'
+      +'<td><div style="font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:190px">'+esc(t.merchant)+'</div></td>'
+      +'<td style="text-align:right;font-family:\'DM Mono\',monospace" class="'+(t.type==='credit'?'cdt':'dbt')+'">'+(t.type==='credit'?'+':'-')+' '+fmt(t.amount,t.currency)+'</td>'
+      +'<td><span class="bg '+cc(t.category)+'">'+esc(t.category)+'</span></td>'
+      +'<td><input class="ri" type="text" placeholder="Add note..." value="'+esc(t.remarks)+'" onchange="ur(\''+t.id+'\',this.value)"></td>'
+      +'</tr>';
+  }).join('');
 }
 
-function toggleDone(id, val) {
-  if (!activeMonth) return;
-  const t = store[activeMonth].find(x => x.id === id);
-  if (t) { t.done = val; saveStore(); }
-  const row = document.getElementById('tr-'+id);
-  if (row) row.className = val ? 'is-done' : '';
-  // update stat
-  const done = (store[activeMonth]||[]).filter(t=>t.done).length;
-  const total = (store[activeMonth]||[]).length;
-  const el = document.querySelector('.stat-val:not(.acc):not(.red):not(.grn):not(.blu)');
-  if (el) el.textContent = done + ' / ' + total;
+function td_(id,val){
+  if(!am)return;
+  var t=store[am].find(function(x){return x.id===id;});
+  if(t){t.done=val;ss();}
+  var row=document.getElementById('r-'+id);if(row)row.className=val?'dk':'';
+  var dn=store[am].filter(function(t){return t.done;}).length;
+  var el=document.getElementById('dv');if(el)el.textContent=dn+' / '+store[am].length;
 }
-
-function updateRemark(id, val) {
-  if (!activeMonth) return;
-  const t = store[activeMonth].find(x => x.id === id);
-  if (t) { t.remarks = val; saveStore(); }
+function ur(id,val){if(!am)return;var t=store[am].find(function(x){return x.id===id;});if(t){t.remarks=val;ss();}}
+function clearMonth(){
+  if(!am)return;
+  if(!confirm('Clear all transactions for '+am+'?'))return;
+  delete store[am];am='';ss();rTabs();
+  document.getElementById('mc').innerHTML='<div class="empty">Drop a PDF to get started.</div>';
+  document.getElementById('clrBtn').style.display='none';
+  document.getElementById('shBtn').style.display='none';
 }
-
-function clearMonth() {
-  if (!activeMonth) return;
-  if (!confirm(`Clear all transactions for ${activeMonth}?`)) return;
-  delete store[activeMonth];
-  activeMonth = '';
-  saveStore();
-  renderTabs();
-  document.getElementById('monthContent').innerHTML = '<div class="empty"><div class="empty-icon">📂</div>Drop a PDF to get started.</div>';
-  document.getElementById('topActions').style.display = 'none';
+function sendToSheets(){
+  var url=document.getElementById('sheetsUrl').value.trim();
+  if(!url){showSt('Please add your Google Sheets URL first.','error');return;}
+  if(!am||!store[am]||!store[am].length){showSt('No transactions to send.','error');return;}
+  showSt('Sending '+store[am].length+' transactions...','info',true);
+  fetch(url,{method:'POST',mode:'no-cors',headers:{'Content-Type':'application/json'},body:JSON.stringify({month:am,transactions:store[am]})})
+    .then(function(){showSt('✓ '+store[am].length+' transactions sent to Google Sheets!','success');})
+    .catch(function(e){showSt('Failed: '+e.message,'error');});
 }
-
-// ── Send to Google Sheets ──
-async function sendToSheets() {
-  const url = document.getElementById('sheetsUrl').value.trim();
-  if (!url) { showStatus('Please add your Google Sheets Web App URL first.', 'error'); return; }
-  if (!activeMonth || !store[activeMonth]?.length) { showStatus('No transactions to send.', 'error'); return; }
-
-  showStatus(`Sending ${store[activeMonth].length} transactions to Google Sheets...`, 'info', true);
-  try {
-    await fetch(url, {
-      method: 'POST', mode: 'no-cors',
-      headers: {'Content-Type':'application/json'},
-      body: JSON.stringify({ month: activeMonth, transactions: store[activeMonth] })
-    });
-    showStatus(`✓ ${store[activeMonth].length} transactions for ${activeMonth} sent to Google Sheets!`, 'success');
-  } catch(err) { showStatus('Failed: ' + err.message, 'error'); }
+function testConn(){
+  var url=document.getElementById('sheetsUrl').value.trim();
+  if(!url){showSt('Paste your Sheets URL first.','error');return;}
+  showSt('Testing...','info',true);
+  fetch(url,{method:'GET',mode:'no-cors'})
+    .then(function(){showSt('✓ Connected! Sheet is ready.','success');})
+    .catch(function(){showSt('Could not connect.','error');});
 }
-
-async function testConn() {
-  const url = document.getElementById('sheetsUrl').value.trim();
-  if (!url) { showStatus('Paste your Sheets URL first.', 'error'); return; }
-  showStatus('Testing...', 'info', true);
-  try {
-    await fetch(url, {method:'GET', mode:'no-cors'});
-    showStatus('✓ Connection looks good! Your sheet is ready.', 'success');
-  } catch { showStatus('Could not connect — check your URL.', 'error'); }
-}
-
-// ── Helpers ──
-function fmtAmt(n, cur) { return (cur||'AED') + ' ' + Number(n).toLocaleString('en', {minimumFractionDigits:2,maximumFractionDigits:2}); }
-function esc(s) { return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
-function catCls(c) {
-  const m = {'Food & Dining':'cat-food','Shopping':'cat-shop','Transport':'cat-trans','Travel':'cat-travel','Health':'cat-health','Fuel':'cat-trans','Utilities':'cat-util','Entertainment':'cat-ent','Groceries':'cat-food','Electronics':'cat-shop','Other':'cat-other'};
-  return m[c]||'cat-other';
-}
-function showStatus(msg, type='info', spin=false) {
-  const bar=document.getElementById('statusBar'), sp=document.getElementById('spinner');
-  document.getElementById('statusMsg').textContent = msg;
-  bar.className = 'status ' + type;
-  sp.style.display = spin ? 'block' : 'none';
-  bar.style.display = 'flex';
-  if (!spin) setTimeout(()=>{ bar.style.display='none'; }, 5000);
-}
-
-// ── Apps Script code ──
-const SCRIPT = `function doPost(e) {
-  try {
-    var data = JSON.parse(e.postData.contents);
-    var ss = SpreadsheetApp.getActiveSpreadsheet();
-    var month = data.month || "Transactions";
-    var sheet = ss.getSheetByName(month);
-    if (!sheet) {
-      sheet = ss.insertSheet(month);
-      var headers = ["Date","Bank","Card","Merchant","Amount","Type","Currency","Category","Remarks","Done","Imported On"];
-      sheet.appendRow(headers);
-      sheet.getRange(1,1,1,headers.length).setFontWeight("bold").setBackground("#0c0c0c").setFontColor("#c9f05a");
-      sheet.setFrozenRows(1);
-    }
-    var importedOn = new Date().toLocaleString();
-    data.transactions.forEach(function(r) {
-      sheet.appendRow([r.date,r.bank,r.card||"",r.merchant,r.amount,r.type,r.currency||"AED",r.category,r.remarks||"",r.done?"Yes":"",importedOn]);
-    });
-    sheet.autoResizeColumns(1, 11);
-    return ContentService.createTextOutput(JSON.stringify({status:"ok",added:data.transactions.length})).setMimeType(ContentService.MimeType.JSON);
-  } catch(err) {
-    return ContentService.createTextOutput(JSON.stringify({status:"error",message:err.toString()})).setMimeType(ContentService.MimeType.JSON);
-  }
-}
-function doGet(e) {
-  return ContentService.createTextOutput(JSON.stringify({status:"ok",message:"Credit Card Tracker connected!"})).setMimeType(ContentService.MimeType.JSON);
-}`;
-
-function copyScript() {
-  navigator.clipboard.writeText(SCRIPT).then(() => {
-    const el = document.getElementById('copyOk');
-    el.style.display = 'inline';
-    setTimeout(() => el.style.display = 'none', 2500);
-  });
+function fmt(n,cur){return(cur||'INR')+' '+Number(n).toLocaleString('en-IN',{minimumFractionDigits:2,maximumFractionDigits:2});}
+function esc(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+function cc(c){var m={'Food & Dining':'bf','Shopping':'bs','Transport':'btr','Travel':'btv','Health':'bh','Fuel':'btr','Utilities':'bu','Entertainment':'be','Groceries':'bf','Electronics':'bs','Other':'bo'};return m[c]||'bo';}
+function showSt(msg,type,spin){
+  var b=document.getElementById('sb'),sp=document.getElementById('sp');
+  document.getElementById('sm').textContent=msg;
+  b.className='status '+type;sp.style.display=spin?'block':'none';b.style.display='flex';
+  if(!spin)setTimeout(function(){b.style.display='none';},6000);
 }
 </script>
 </body>
