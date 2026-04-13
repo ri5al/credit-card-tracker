@@ -242,14 +242,56 @@ function handleFile(file){
     }
     if(!store[month])store[month]=[];
     am=month;
-    var txns=parseTxns(lines,bank,card,cur,month);
+    // Parse without a fixed month first — let each txn carry its own date
+    var txns=parseTxns(lines,bank,card,cur,'__AUTO__');
     if(!txns.length){
       showSt('No transactions found. Make sure this is a credit card statement PDF with transaction rows.','error');
       return;
     }
-    store[month]=(store[month]||[]).concat(txns);
+
+    // Split transactions by their actual month
+    var byMonth={};
+    txns.forEach(function(t){
+      // date is DD/MM/YYYY
+      var parts=t.date.split('/');
+      var tMonth='';
+      if(parts.length===3){
+        var mi=parseInt(parts[1])-1;
+        var y=parts[2];
+        var MNA='Jan,Feb,Mar,Apr,May,Jun,Jul,Aug,Sep,Oct,Nov,Dec'.split(',');
+        if(mi>=0&&mi<=11) tMonth=MNA[mi]+' '+y;
+      }
+      if(!tMonth) tMonth=detectedMonth||document.getElementById('monthSel').value;
+      t.month=tMonth;
+      if(!byMonth[tMonth]) byMonth[tMonth]=[];
+      byMonth[tMonth].push(t);
+    });
+
+    // Save each month's transactions into correct tab
+    var months=Object.keys(byMonth);
+    var totalAdded=0;
+    months.forEach(function(m){
+      if(!store[m]) store[m]=[];
+      store[m]=store[m].concat(byMonth[m]);
+      totalAdded+=byMonth[m].length;
+    });
     ss();
-    showSt('✓ Auto-detected '+month+' — added '+txns.length+' transactions from '+bank,'success');
+
+    // Switch to the tab with most transactions
+    var mainMonth=months.reduce(function(a,b){return byMonth[a].length>=byMonth[b].length?a:b;});
+    am=mainMonth;
+
+    // Update month dropdown
+    var sel=document.getElementById('monthSel');
+    months.forEach(function(m){
+      var found=false;
+      for(var i=0;i<sel.options.length;i++){if(sel.options[i].value===m){found=true;break;}}
+      if(!found){var o=document.createElement('option');o.value=m;o.textContent=m;sel.insertBefore(o,sel.firstChild);}
+    });
+    sel.value=mainMonth;
+
+    var splitMsg=months.length>1?' (split across '+months.join(', ')+')':"";
+    showSt('✓ Added '+totalAdded+' transactions from '+bank+splitMsg,'success');
     rTabs();rMC();
     document.getElementById('clrBtn').style.display='inline-flex';
     document.getElementById('shBtn').style.display='inline-flex';
