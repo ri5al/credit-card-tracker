@@ -145,42 +145,60 @@ function od(e){e.preventDefault();og(e,false);var f=e.dataTransfer.files[0];if(f
 // Auto-detect month from PDF text
 function detectMonth(lines){
   var MNS=['jan','feb','mar','apr','may','jun','jul','aug','sep','oct','nov','dec'];
-  var MNL=['january','february','march','april','may','june','july','august','september','october','november','december'];
-  // Look for patterns like "19 Feb, 2026 - 18 Mar, 2026" or "Statement Period: 24/02/2026 - 22/03/2026" or "Mar 2026"
-  for(var i=0;i<Math.min(lines.length,60);i++){
-    var line=lines[i].toLowerCase();
-    // Pattern: billing period with date range - use END date as statement month
-    // e.g. "19 Feb, 2026 - 18 Mar, 2026" → Mar 2026
-    var rangeRe=/\b(\d{1,2})\s+(jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec)[a-z]*[,\s]+(\d{4})\s*[-–to]+\s*(\d{1,2})\s+(jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec)[a-z]*[,\s]+(\d{4})/i;
-    var rm=line.match(rangeRe);
-    if(rm){
-      var mi=MNS.indexOf(rm[5].toLowerCase().slice(0,3));
-      if(mi>=0){var mn=('Jan,Feb,Mar,Apr,May,Jun,Jul,Aug,Sep,Oct,Nov,Dec').split(',')[mi];return mn+' '+rm[6];}
-    }
-    // Pattern: DD/MM/YYYY - DD/MM/YYYY range
-    var dateRangeRe=/(\d{2})[\/\-](\d{2})[\/\-](\d{4})\s*[-–to]+(\d{2})[\/\-](\d{2})[\/\-](\d{4})/;
-    var dr=line.match(dateRangeRe);
-    if(dr){
-      var endM=parseInt(dr[5])-1;
-      var endY=dr[6];
-      var mn=('Jan,Feb,Mar,Apr,May,Jun,Jul,Aug,Sep,Oct,Nov,Dec').split(',')[endM];
-      if(mn)return mn+' '+endY;
-    }
-    // Pattern: "Statement Date: 18 Mar, 2026" or "Mar 2026" standalone
-    var sdRe=/statement\s*date[:\s]+(\d{1,2})\s+(jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec)[a-z]*[,\s]+(\d{4})/i;
-    var sd=line.match(sdRe);
-    if(sd){var mi=MNS.indexOf(sd[2].toLowerCase().slice(0,3));if(mi>=0){var mn=('Jan,Feb,Mar,Apr,May,Jun,Jul,Aug,Sep,Oct,Nov,Dec').split(',')[mi];return mn+' '+sd[3];}}
-    // Pattern: Generation Date 22/03/2026
-    var gdRe=/generation\s*date\s+(\d{2})[\/\-](\d{2})[\/\-](\d{4})/i;
-    var gd=lines[i].match(gdRe);
-    if(gd){var endM=parseInt(gd[2])-1;var mn=('Jan,Feb,Mar,Apr,May,Jun,Jul,Aug,Sep,Oct,Nov,Dec').split(',')[endM];if(mn)return mn+' '+gd[3];}
+  var MNA='Jan,Feb,Mar,Apr,May,Jun,Jul,Aug,Sep,Oct,Nov,Dec'.split(',');
+  var fullText=lines.slice(0,80).join(' ');
+
+  // Priority 1: Billing Period range like "19 Feb, 2026 - 18 Mar, 2026" → use START month
+  var rangeRe=/(\d{1,2})\s+(Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)[a-z]*[,\s]+(\d{4})\s*[-–to]+\s*(\d{1,2})\s+(Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)[a-z]*[,\s]+(\d{4})/i;
+  var rm=fullText.match(rangeRe);
+  if(rm){
+    var mi=MNS.indexOf(rm[2].toLowerCase().slice(0,3));
+    if(mi>=0)return MNA[mi]+' '+rm[3];
   }
+
+  // Priority 2: DD/MM/YYYY - DD/MM/YYYY range → use START date month
+  var drRe=/(\d{2})[\/](\d{2})[\/](\d{4})\s*[-–to]+(\d{2})[\/](\d{2})[\/](\d{4})/;
+  var dr=fullText.match(drRe);
+  if(dr){
+    var mi=parseInt(dr[2])-1;
+    if(mi>=0&&mi<=11)return MNA[mi]+' '+dr[3];
+  }
+
+  // Priority 3: Look for "Billing Period" or "Statement Period" label near dates
+  for(var i=0;i<Math.min(lines.length,80);i++){
+    var line=lines[i];
+    if(/(billing|statement)\s*(period|date|cycle)/i.test(line)){
+      // Look for DD/MM/YYYY in this line or next 2 lines
+      var chunk=lines.slice(i,i+3).join(' ');
+      var dm=chunk.match(/(\d{2})[\/](\d{2})[\/](\d{4})/);
+      if(dm){var mi=parseInt(dm[2])-1;if(mi>=0&&mi<=11)return MNA[mi]+' '+dm[3];}
+    }
+  }
+
+  // Priority 4: Find the most common month among all transaction dates in the PDF
+  var monthCount={};
+  var txnDateRe=/\b(\d{2})[\/\-](\d{2})[\/\-](\d{4})\b/g;
+  var skip=/(statement|generation|due|expir)/i;
+  lines.forEach(function(line){
+    if(skip.test(line))return;
+    var m;
+    while((m=txnDateRe.exec(line))!==null){
+      var mi=parseInt(m[2])-1;
+      var y=m[3];
+      if(mi>=0&&mi<=11){var key=MNA[mi]+' '+y;monthCount[key]=(monthCount[key]||0)+1;}
+    }
+  });
+  var best=null,bestCount=0;
+  Object.keys(monthCount).forEach(function(k){if(monthCount[k]>bestCount){bestCount=monthCount[k];best=k;}});
+  if(best&&bestCount>=2)return best;
+
   return null;
 }
 
 function handleFile(file){
   if(!file)return;
-  var bank=document.getElementById('bankName').value.trim()||'Unknown Bank';
+  var bank=document.getElementById('bankName').value.trim();
+  if(!bank){showSt('Please enter the Bank Name before uploading!','error');return;}
   var card=document.getElementById('cardName').value.trim();
   var cur=document.getElementById('curSel').value;
   showSt('Reading PDF...','info',true);
@@ -263,12 +281,31 @@ function parseTxns(lines,bank,card,cur,month){
       .replace(/\|\s*\d{2}:\d{2}(:\d{2})?/g,'')
       .replace(/\(Ref#[^)]+\)/gi,'')
       .replace(/Ref#\s*\S+/gi,'')
-      .replace(/\b(ST|DP|VT|UPI|NEFT|IMPS)\d{8,}/gi,'')
+      .replace(/\b(ST|DP|VT)\d{8,}/gi,'')
       .replace(new RegExp(aRe.source,'g'),'')
       .replace(/\b(Cr|Dr|CR|DR)\b/g,'')
       .replace(/[+\-|*]/g,' ')
       .replace(/\s{2,}/g,' ')
       .trim();
+
+    // Clean UPI transactions: extract readable name
+    // UPI format: "UPI Tfr S31186727 0 30000 40" or "Upiout/607162035717/pk Tfr S31289622..."
+    // or "Upi In/608050867332/ Tfr S73358125..."
+    var upiNameRe=/upi\s*(?:out|in)?[\s\/]([a-z][a-z0-9\s]{2,30}?)(?:\s*tfr|\s*\/|\s*\d{8,})/i;
+    var upiMatch=merchant.match(upiNameRe);
+    if(upiMatch&&upiMatch[1]&&upiMatch[1].trim().length>2){
+      merchant=upiMatch[1].trim();
+    } else if(/^upi\s/i.test(merchant)||/^upiout/i.test(merchant)||/^upi\s*in/i.test(merchant)){
+      // Generic UPI — extract any word sequence before numbers
+      var upiClean=merchant.replace(/upi(out|in)?[\s\/]*/i,'').replace(/\/[^\s]*/g,' ').replace(/\b[A-Z]\d{5,}\b/g,'').replace(/\b\d+\b/g,'').replace(/\s+/g,' ').trim();
+      merchant=upiClean&&upiClean.length>2?upiClean:'UPI Transfer';
+    }
+
+    // Clean NEFT/IMPS/BBPS
+    merchant=merchant.replace(/\b(NEFT|IMPS|BBPS|NACH)\s*[-\/]?\s*/gi,'').trim();
+    // Remove long number sequences
+    merchant=merchant.replace(/\b\d{6,}\b/g,'').replace(/\s{2,}/g,' ').trim();
+
     if(!merchant||merchant.length<2)merchant='Transaction';
     merchant=merchant.split(' ').filter(function(w){return w.length>0;}).map(function(w){return w.charAt(0).toUpperCase()+w.slice(1).toLowerCase();}).join(' ');
     var isCredit=/\+\s*(?:C\s*)?\d|\bCr\b|PAYMENT\s*RECEIVED|REFUND|REVERSAL|CASH\s*BACK|CREDIT\s*RECEIVED|\d+\s*Cr\b/i.test(line);
