@@ -142,14 +142,47 @@ function sw(m){am=m;rTabs();rMC();}
 function og(e,a){e.preventDefault();document.getElementById('dz').classList.toggle('drag',a);}
 function od(e){e.preventDefault();og(e,false);var f=e.dataTransfer.files[0];if(f&&f.type==='application/pdf')handleFile(f);else showSt('Please drop a PDF file.','error');}
 
+// Auto-detect month from PDF text
+function detectMonth(lines){
+  var MNS=['jan','feb','mar','apr','may','jun','jul','aug','sep','oct','nov','dec'];
+  var MNL=['january','february','march','april','may','june','july','august','september','october','november','december'];
+  // Look for patterns like "19 Feb, 2026 - 18 Mar, 2026" or "Statement Period: 24/02/2026 - 22/03/2026" or "Mar 2026"
+  for(var i=0;i<Math.min(lines.length,60);i++){
+    var line=lines[i].toLowerCase();
+    // Pattern: billing period with date range - use END date as statement month
+    // e.g. "19 Feb, 2026 - 18 Mar, 2026" → Mar 2026
+    var rangeRe=/\b(\d{1,2})\s+(jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec)[a-z]*[,\s]+(\d{4})\s*[-–to]+\s*(\d{1,2})\s+(jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec)[a-z]*[,\s]+(\d{4})/i;
+    var rm=line.match(rangeRe);
+    if(rm){
+      var mi=MNS.indexOf(rm[5].toLowerCase().slice(0,3));
+      if(mi>=0){var mn=('Jan,Feb,Mar,Apr,May,Jun,Jul,Aug,Sep,Oct,Nov,Dec').split(',')[mi];return mn+' '+rm[6];}
+    }
+    // Pattern: DD/MM/YYYY - DD/MM/YYYY range
+    var dateRangeRe=/(\d{2})[\/\-](\d{2})[\/\-](\d{4})\s*[-–to]+(\d{2})[\/\-](\d{2})[\/\-](\d{4})/;
+    var dr=line.match(dateRangeRe);
+    if(dr){
+      var endM=parseInt(dr[5])-1;
+      var endY=dr[6];
+      var mn=('Jan,Feb,Mar,Apr,May,Jun,Jul,Aug,Sep,Oct,Nov,Dec').split(',')[endM];
+      if(mn)return mn+' '+endY;
+    }
+    // Pattern: "Statement Date: 18 Mar, 2026" or "Mar 2026" standalone
+    var sdRe=/statement\s*date[:\s]+(\d{1,2})\s+(jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec)[a-z]*[,\s]+(\d{4})/i;
+    var sd=line.match(sdRe);
+    if(sd){var mi=MNS.indexOf(sd[2].toLowerCase().slice(0,3));if(mi>=0){var mn=('Jan,Feb,Mar,Apr,May,Jun,Jul,Aug,Sep,Oct,Nov,Dec').split(',')[mi];return mn+' '+sd[3];}}
+    // Pattern: Generation Date 22/03/2026
+    var gdRe=/generation\s*date\s+(\d{2})[\/\-](\d{2})[\/\-](\d{4})/i;
+    var gd=lines[i].match(gdRe);
+    if(gd){var endM=parseInt(gd[2])-1;var mn=('Jan,Feb,Mar,Apr,May,Jun,Jul,Aug,Sep,Oct,Nov,Dec').split(',')[endM];if(mn)return mn+' '+gd[3];}
+  }
+  return null;
+}
+
 function handleFile(file){
   if(!file)return;
-  var month=document.getElementById('monthSel').value;
   var bank=document.getElementById('bankName').value.trim()||'Unknown Bank';
   var card=document.getElementById('cardName').value.trim();
   var cur=document.getElementById('curSel').value;
-  if(!store[month])store[month]=[];
-  am=month;
   showSt('Reading PDF...','info',true);
   file.arrayBuffer().then(function(buf){
     return pdfjsLib.getDocument({data:buf}).promise;
@@ -176,7 +209,21 @@ function handleFile(file){
       });
     },Promise.resolve([]));
   }).then(function(lines){
-    showSt('Parsing transactions...','info',true);
+    // Auto-detect month from PDF
+    var detectedMonth=detectMonth(lines);
+    var month=detectedMonth||document.getElementById('monthSel').value;
+    if(detectedMonth){
+      // Update the dropdown to match
+      var sel=document.getElementById('monthSel');
+      var found=false;
+      for(var i=0;i<sel.options.length;i++){if(sel.options[i].value===detectedMonth){sel.value=detectedMonth;found=true;break;}}
+      if(!found){var o=document.createElement('option');o.value=detectedMonth;o.textContent=detectedMonth;sel.insertBefore(o,sel.firstChild);sel.value=detectedMonth;}
+      showSt('Auto-detected: '+detectedMonth+' — parsing transactions...','info',true);
+    } else {
+      showSt('Parsing transactions...','info',true);
+    }
+    if(!store[month])store[month]=[];
+    am=month;
     var txns=parseTxns(lines,bank,card,cur,month);
     if(!txns.length){
       showSt('No transactions found. Make sure this is a credit card statement PDF with transaction rows.','error');
@@ -184,7 +231,7 @@ function handleFile(file){
     }
     store[month]=(store[month]||[]).concat(txns);
     ss();
-    showSt('✓ Added '+txns.length+' transactions from '+bank,'success');
+    showSt('✓ Auto-detected '+month+' — added '+txns.length+' transactions from '+bank,'success');
     rTabs();rMC();
     document.getElementById('clrBtn').style.display='inline-flex';
     document.getElementById('shBtn').style.display='inline-flex';
